@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Booster Pack Prices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        /* Style for the header link */
+        h1 a {
+            text-decoration: none; /* Removes underline from the link */
+            color: inherit; /* Makes the link color the same as the h1 text */
+        }
+        h1 a:hover {
+            color: #3498db; /* Optional: Change color on hover for visual feedback */
+        }
+
+        .search-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-container input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+            font-size: 16px;
+        }
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .search-container button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #e0e0e0;
+            color: #333;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* STYLE FOR THE TIER SEPARATOR LINE */
+        .tier-separator td {
+            height: 1px;
+            padding: 0;
+            background-color: #333;
+            border-top: 3px solid #333;
+            border-bottom: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Styles for sortable headers */
+        th a {
+            display: inline-block; /* Allows arrow to sit next to text */
+            width: 100%;
+            text-decoration: none;
+            color: inherit; /* Maintain text color */
+        }
+
+        th a:hover {
+            text-decoration: none; /* Prevent underline on header link hover */
+            color: #3498db; /* Change color on hover */
+        }
+
+        .sort-icon {
+            margin-left: 5px;
+            font-size: 0.8em;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        <a href="{% url 'packs:pack_list' %}">Pokémon Booster Pack Prices (June 2025)</a>
+    </h1>
+
+    <div class="search-container">
+        <form method="GET" action="">
+            <input type="text" name="q" placeholder="Search by Set Name or Release Date..." 
+                    value="{{ query|default_if_none:'' }}"> {# Retains search term #}
+            {# Preserve existing sort parameters when searching #}
+            <input type="hidden" name="sort" value="{{ current_sort_by }}">
+            <input type="hidden" name="order" value="{{ current_order }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <a href="?sort=set_name&order={% if current_sort_by == 'set_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                        Set Name
+                        {% if current_sort_by == 'set_name' %}
+                            <span class="sort-icon">{% if current_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort=release_date&order={% if current_sort_by == 'release_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                        Release Date
+                        {% if current_sort_by == 'release_date' %}
+                            <span class="sort-icon">{% if current_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    {# Changed the sort parameter to 'price_range' #}
+                    <a href="?sort=price_range&order={% if current_sort_by == 'price_range' and current_order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                        Price Range
+                        {% if current_sort_by == 'price_range' %}
+                            <span class="sort-icon">{% if current_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
+                        {% endif %}
+                    </a>
+                </th>
+                <th>PriceCharting Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {# The tier grouping logic within the loop is removed as the view now handles it more dynamically #}
+            {# Or, if you want the visual separators, you can add this back (see note below) #}
+            {% for pack in packs %}
+                {% if pack.is_new_tier and sort_by == 'tier' %}
+                <tr class="tier-separator">
+                    <td colspan="4"></td> {# Empty cells to span the table #}
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>{{ pack.set_name }}</td>
+                    <td>{{ pack.release_date|date:"Y-m-d" }}</td> {# Formats the date cleanly #}
+                    <td>
+                        {% if pack.price_range  %}
+                            {{ pack.price_range }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if pack.price_charting_link %}
+                            <a href="{{ pack.price_charting_link }}" target="_blank">View on PriceCharting</a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %} {# This block runs if 'packs' is empty #}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 20px;">
+                        No Pokémon booster packs found matching your search.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
