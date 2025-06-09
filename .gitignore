@@ -1,9 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/*
 packs/__pycache__/*
-management/commands/__pycache__/*
-packs/__pycache__/*
-migrations/__pycache__/*
+packs/management/commands/__pycache__/*
+packs/migrations/__pycache__/*
 route_214/__pycache__/*
 db.sqlite3
 *.py[cod]
