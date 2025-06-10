@@ -81,16 +81,6 @@
             text-decoration: underline;
         }
 
-        /* STYLE FOR THE TIER SEPARATOR LINE */
-        .tier-separator td {
-            height: 1px;
-            padding: 0;
-            background-color: #333;
-            border-top: 3px solid #333;
-            border-bottom: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
         /* Styles for sortable headers */
         th a {
             display: inline-block; /* Allows arrow to sit next to text */
@@ -159,20 +149,13 @@
             </tr>
         </thead>
         <tbody>
-            {# The tier grouping logic within the loop is removed as the view now handles it more dynamically #}
-            {# Or, if you want the visual separators, you can add this back (see note below) #}
             {% for pack in packs %}
-                {% if pack.is_new_tier and sort_by == 'tier' %}
-                <tr class="tier-separator">
-                    <td colspan="4"></td> {# Empty cells to span the table #}
-                </tr>
-                {% endif %}
                 <tr>
                     <td>{{ pack.set_name }}</td>
                     <td>{{ pack.release_date|date:"Y-m-d" }}</td> {# Formats the date cleanly #}
                     <td>
                         {% if pack.price_range  %}
-                            {{ pack.price_range }}
+                            ${{ pack.price_range }}
                         {% else %}
                             N/A
                         {% endif %}
